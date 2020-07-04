@@ -1,6 +1,9 @@
 // Única responsabilidade: criar um repositório
 
+import Appointment from '../models/Appointment';
 import AppointmentsRepository from '../repositories/AppointmentsRepository';
+import {getCustomRepository} from 'typeorm';
+
 import { startOfHour } from 'date-fns';
 
 interface RequestDTO{
@@ -9,26 +12,26 @@ interface RequestDTO{
 }
 
 class CreateAppointmentService{
+    // Sempre que for uma função assíncrona, utilizar Promise no retorno
+    public async execute({provider, date}: RequestDTO): Promise<Appointment>{
 
-    private appointmentsRepository: AppointmentsRepository;
-
-    constructor(appointmentsRepository: AppointmentsRepository){
-        this.appointmentsRepository = appointmentsRepository;
-    }
-
-    public execute({provider, date}: RequestDTO){
+        const appointmentsRepository = getCustomRepository(AppointmentsRepository);
 
         const appointmentDate = startOfHour(date);
 
-        const findAppointmentInSameDate = this.appointmentsRepository.findByDate(appointmentDate);
+        const findAppointmentInSameDate = await appointmentsRepository.findByDate(appointmentDate);
 
         if(findAppointmentInSameDate){
             throw Error("This appointment is already booked!");
         }
 
-        const newAppointment = this.appointmentsRepository.create({
+        // Cria instância do objeto
+        const newAppointment = appointmentsRepository.create({
             provider,
             date: appointmentDate});
+
+        // Salva registro no banco de dados
+        await appointmentsRepository.save(newAppointment);
 
         return(newAppointment);
     }

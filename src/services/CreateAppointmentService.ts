@@ -7,13 +7,13 @@ import {getCustomRepository} from 'typeorm';
 import { startOfHour } from 'date-fns';
 
 interface RequestDTO{
-    provider: String;
+    provider_id: String;
     date: Date;
 }
 
 class CreateAppointmentService{
     // Sempre que for uma função assíncrona, utilizar Promise no retorno
-    public async execute({provider, date}: RequestDTO): Promise<Appointment>{
+    public async execute({provider_id, date}: RequestDTO): Promise<Appointment>{
 
         const appointmentsRepository = getCustomRepository(AppointmentsRepository);
 
@@ -27,7 +27,7 @@ class CreateAppointmentService{
 
         // Cria instância do objeto
         const newAppointment = appointmentsRepository.create({
-            provider,
+            provider_id,
             date: appointmentDate});
 
         // Salva registro no banco de dados

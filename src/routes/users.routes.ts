@@ -12,6 +12,9 @@ usersRouter.post('/', async (request, response) => {
 
         const newUser = await createUser.execute({name, email, password});
 
+        // Password deletado para não ser impresso na tela
+        delete newUser.password;
+
         return response.json(newUser);
     } catch(err) {
         return response.status(400).json({error: err.message});

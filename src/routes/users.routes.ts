@@ -1,8 +1,14 @@
 import { Router } from 'express';
 import CreateUserService from '../services/CreateUserService';
+import ensureAuthenticated from '../middlewares/ensureAuthenticated';
+import multer from 'multer';
+import uploadConfig from '../config/upload';
 
 // Ponteiro de rotas
 const usersRouter = Router();
+
+// Instância do multer com configurações de upload
+const upload = multer(uploadConfig);
 
 usersRouter.post('/', async (request, response) => {
     try {
@@ -19,6 +25,16 @@ usersRouter.post('/', async (request, response) => {
     } catch(err) {
         return response.status(400).json({error: err.message});
     }
+});
+
+// O middleware de autenticação de usuário está sendo utilizado nesta rota para
+// garantir que somente um usuário autenticado seja capaz de atualizar o seu avatar
+usersRouter.patch(
+    '/avatar',
+    ensureAuthenticated,
+    upload.single('avatar'),
+    async (request, response) => {
+        return response.json({ok: true});
 });
 
 export default usersRouter;

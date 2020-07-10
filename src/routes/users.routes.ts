@@ -12,20 +12,16 @@ const usersRouter = Router();
 const upload = multer(uploadConfig);
 
 usersRouter.post('/', async (request, response) => {
-    try {
-        const {name, email, password} = request.body;
+    const {name, email, password} = request.body;
 
-        const createUser = new CreateUserService();
+    const createUser = new CreateUserService();
 
-        const newUser = await createUser.execute({name, email, password});
+    const newUser = await createUser.execute({name, email, password});
 
-        // Password deletado para não ser impresso na tela
-        delete newUser.password;
+    // Password deletado para não ser impresso na tela
+    delete newUser.password;
 
-        return response.json(newUser);
-    } catch(err) {
-        return response.status(400).json({error: err.message});
-    }
+    return response.json(newUser);
 });
 
 // O middleware de autenticação de usuário está sendo utilizado nesta rota para
@@ -35,20 +31,16 @@ usersRouter.patch(
     ensureAuthenticated,
     upload.single('avatar'),
     async (request, response) => {
-        try{
-            const updateUserAvatar = new UpdateUserAvatarService();
+        const updateUserAvatar = new UpdateUserAvatarService();
 
-            const user = await updateUserAvatar.execute({
-                user_id: request.user.id,
-                avatarFileName: request.file.filename
-            });
+        const user = await updateUserAvatar.execute({
+            user_id: request.user.id,
+            avatarFileName: request.file.filename
+        });
 
-            delete user.password;
+        delete user.password;
 
-            return response.json(user);
-        } catch(err){
-            return response.status(err.statusCode).json({error: err.message});
-        }
+        return response.json(user);
 });
 
 export default usersRouter;
